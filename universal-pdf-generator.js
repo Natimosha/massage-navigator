@@ -195,7 +195,7 @@ function getPersonalizedSteps(state) {
         steps.push({
             id: 'salon-exit-channels',
             title: 'Запустить 2-3 канала привлечения',
-            detail: 'Авито + Яндекс.Карты + соцсети — бесплатно или почти бесплатно.',
+            detail: 'Авито + Яндекс.Карты/2ГИС + соцсети — бесплатно или почти бесплатно.',
             metric: 'Ожидаемый поток: 3-8 заявок в месяц с каждого канала',
             pdfBlocks: ['channel-avito', 'channel-yandex-maps', 'channel-social']
         });
@@ -212,7 +212,7 @@ function getPersonalizedSteps(state) {
         steps.push({
             id: 'salon-exit-reviews',
             title: 'Собрать 10+ отзывов до ухода',
-            detail: 'Отзывы — ваш актив. Просите каждого клиента.',
+            detail: 'Отзывы — ваш актив. Просите каждого клиента оставить отзыв.',
             metric: 'Каждый отзыв = 1-2 новых клиента',
             pdfBlocks: ['reviews-how-to-ask', 'reviews-templates']
         });
@@ -235,8 +235,8 @@ function getPersonalizedSteps(state) {
             steps.push({
                 id: 'salon-grow-create-loyal',
                 title: 'Создать "своих" клиентов',
-                detail: 'Чтобы люди просили записать именно к вам.',
-                metric: 'Цель: 30-40% клиентов просят именно вас',
+                detail: 'Чтобы люди просили записать их именно к вам.',
+                metric: 'Цель: 30-40% клиентов просят записаться именно к вам',
                 pdfBlocks: ['loyal-clients-7-techniques', 'loyal-clients-templates']
             });
         }
@@ -279,7 +279,7 @@ function getPersonalizedSteps(state) {
         steps.push({
             id: 'salon-grow-own-base',
             title: 'Начать собирать свою базу',
-            detail: 'Записывайте контакты тех, кто приходит к вам. Это страховка и актив.',
+            detail: 'Записывайте контакты тех, кто приходит к вам. Это страховка и ваш актив.',
             metric: 'Минимум: имя + телефон + что беспокоило',
             pdfBlocks: ['client-base-template', 'client-base-how-to']
         });
