@@ -8086,3 +8086,61 @@ if (typeof module !== 'undefined' && module.exports) {
         getScenario
     };
 }
+
+// ============================================
+// ЭКСПОРТ ДЛЯ БРАУЗЕРА (ГЛОБАЛЬНЫЙ)
+// ============================================
+
+(function() {
+    // Проверяем, что мы в браузере
+    if (typeof window === 'undefined') return;
+    
+    // Список функций для экспорта
+    const functionsToExport = {
+        // Основные функции
+        generatePdfHtml,
+        generateAndDownloadPdf,
+        savePdfToIndexedDB,
+        getPdfFromIndexedDB,
+        getPersonalizedSteps,
+        prepareData,
+        getScenario,
+        
+        // ⭐ КРИТИЧЕСКИ ВАЖНЫЕ (которых нет в Node.js экспорте!) ⭐
+        countTotalPages,      // ← ЭТОЙ НЕТ в module.exports!
+        
+        // Дополнительные утилиты (если нужны)
+        BLOCK_PAGES,          // для отладки
+        BLOCK_FUNCTIONS       // для отладки
+    };
+    
+    // Экспортируем каждую функцию
+    let exportedCount = 0;
+    for (const [name, func] of Object.entries(functionsToExport)) {
+        if (func !== undefined) {
+            window[name] = func;
+            exportedCount++;
+        }
+    }
+    
+    // Отладочное сообщение
+    console.log(`✅ PDF генератор v${'2.0'}: экспортировано ${exportedCount} функций`);
+    console.log(`Доступные функции: ${Object.keys(functionsToExport).join(', ')}`);
+    
+    // Быстрый тест экспорта
+    setTimeout(() => {
+        console.log('Тест доступности:');
+        console.log('- countTotalPages:', typeof countTotalPages === 'function' ? '✅' : '❌');
+        console.log('- getPersonalizedSteps:', typeof getPersonalizedSteps === 'function' ? '✅' : '❌');
+        
+        // Авто-тест
+        if (typeof countTotalPages === 'function') {
+            try {
+                const test = countTotalPages([{pdfBlocks: ['plan-30-days']}]);
+                console.log(`Тест: plan-30-days = ${test} страниц`, test >= 3 ? '✅' : '❌');
+            } catch(e) {
+                console.error('Ошибка теста:', e.message);
+            }
+        }
+    }, 100);
+})();
