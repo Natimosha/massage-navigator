@@ -195,7 +195,7 @@ function getPersonalizedSteps(state) {
         steps.push({
             id: 'salon-exit-channels',
             title: 'Запустить 5 каналов привлечения',
-            detail: 'Авито + Яндекс.Карты + ВК/Telegram + партнёрства + сарафан — комплексный подход.',
+            detail: 'Авито + Яндекс.Карты/2ГИС + ВК/Telegram + партнёрства + сарафан — комплексный подход.',
             metric: 'Ожидаемый поток: 10-20 заявок в месяц со всех каналов',
             pdfBlocks: ['channel-avito', 'channel-yandex-maps', 'channel-social', 'channel-partnerships', 'channel-word-of-mouth']
         });
@@ -220,7 +220,7 @@ function getPersonalizedSteps(state) {
         steps.push({
             id: 'salon-exit-reviews',
             title: 'Собрать 10+ отзывов до ухода',
-            detail: 'Отзывы — ваш актив. Просите каждого клиента.',
+            detail: 'Отзывы — ваш актив. Просите отзыв у каждого клиента.',
             metric: 'Каждый отзыв = 1-2 новых клиента',
             pdfBlocks: ['reviews-how-to-ask', 'reviews-templates']
         });
@@ -287,7 +287,7 @@ function getPersonalizedSteps(state) {
         steps.push({
             id: 'salon-grow-own-base',
             title: 'Начать собирать свою базу',
-            detail: 'Записывайте контакты тех, кто приходит к вам. Это страховка и актив.',
+            detail: 'Записывайте контакты тех, кто приходит к вам. Это страховка на будущее и актив.',
             metric: 'Минимум: имя + телефон + что беспокоило',
             pdfBlocks: ['client-base-template', 'client-base-how-to']
         });
@@ -326,8 +326,8 @@ function getPersonalizedSteps(state) {
         steps.push({
             id: 'hybrid-exit-channels',
             title: 'Усилить каналы привлечения',
-            detail: 'Авито, Яндекс.Карты, соцсети, партнёрства, сарафан — полный комплект.',
-            metric: 'Цель: 5 каналов, 10-20 заявок/мес',
+            detail: 'Авито, Профи, Яндекс.Карты, 2ГИС, соцсети, партнёрства, сарафан — полный комплект.',
+            metric: 'Цель: минимум 5 каналов, 10-20 заявок/мес',
             pdfBlocks: ['channel-avito', 'channel-yandex-maps', 'channel-social', 'channel-partnerships', 'channel-word-of-mouth']
         });
         
@@ -385,7 +385,7 @@ function getPersonalizedSteps(state) {
         steps.push({
             id: 'hybrid-grow-channels',
             title: 'Усилить каналы привлечения',
-            detail: 'Авито, Яндекс.Карты, соцсети, партнёрства, сарафан — полный комплект.',
+            detail: 'Авито, Профи, Яндекс.Карты, 2ГИС, соцсети, партнёрства, сарафан — полный комплект.',
             metric: 'Цель: 5 каналов, 10-20 заявок/мес',
             pdfBlocks: ['channel-avito', 'channel-yandex-maps', 'channel-social', 'channel-partnerships', 'channel-word-of-mouth']
         });
