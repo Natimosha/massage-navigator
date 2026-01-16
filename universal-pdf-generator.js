@@ -688,7 +688,7 @@ p {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-height: 297mm;
+    min-height: 257mm;
     text-align: center;
     padding: 0;
 }
@@ -7820,6 +7820,21 @@ async function generateAndDownloadPdf(state, filename) {
     await new Promise(resolve => setTimeout(resolve, 500));
     
     const pages = container.querySelectorAll('.page');
+    
+    // Логирование для отладки
+    const scenario = getScenario(state);
+    const steps = getPersonalizedSteps(state);
+    const expectedPages = countTotalPages(steps);
+    const actualPages = pages.length;
+    
+    console.log(`[PDF Generator] Сценарий: ${scenario}`);
+    console.log(`[PDF Generator] Ожидается страниц: ${expectedPages}`);
+    console.log(`[PDF Generator] Реально страниц: ${actualPages}`);
+    
+    if (expectedPages !== actualPages) {
+        console.warn(`[PDF Generator] ВНИМАНИЕ: Несовпадение! Ожидалось ${expectedPages}, получено ${actualPages}`);
+    }
+    
     const pdf = new jspdf.jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -7827,74 +7842,54 @@ async function generateAndDownloadPdf(state, filename) {
     });
     
     for (let i = 0; i < pages.length; i++) {
-    const page = pages[i];
-    
-    // ==== ДОБАВЛЯЕМ ЭТУ ПРОВЕРКУ ====
-    // 1. Проверяем, нужно ли сжимать страницу
-    const pageHeight = page.scrollHeight;
-    const maxHeight = 297 * 3.78;
-    
-    let originalStyles = null;
-    
-    if (pageHeight > maxHeight) {
-        // 2. Если нужно - сжимаем
-        const compressRatio = maxHeight / pageHeight * 0.9;
+        const page = pages[i];
         
-        // Сохраняем оригинальные стили, чтобы потом восстановить
-        originalStyles = [];
-        const textElements = page.querySelectorAll('p, h1, h2, h3, h4, li, span, div');
+        // Адаптивное сжатие для длинных страниц
+        const A4_HEIGHT_PX = 297 * 3.78; // ~1122px
+        const pageHeight = page.scrollHeight;
+        let scale = 2;
+        let needsCompression = false;
         
-        textElements.forEach(el => {
-            const style = window.getComputedStyle(el);
-            originalStyles.push({
-                element: el,
-                fontSize: el.style.fontSize || style.fontSize,
-                lineHeight: el.style.lineHeight || style.lineHeight
-            });
+        if (pageHeight > A4_HEIGHT_PX) {
+            needsCompression = true;
+            // Сохраняем оригинальные стили
+            const originalFontSize = page.style.fontSize;
+            const originalLineHeight = page.style.lineHeight;
+            const originalPadding = page.style.padding;
             
-            // Сжимаем шрифт
-            const fontSize = parseFloat(style.fontSize);
-            if (fontSize) {
-                el.style.fontSize = (fontSize * compressRatio) + 'px';
-            }
+            // Вычисляем коэффициент сжатия
+            const compressionRatio = A4_HEIGHT_PX / pageHeight;
+            const fontScale = Math.max(0.75, compressionRatio); // Не меньше 75%
             
-            // Сжимаем межстрочный интервал
-            const lineHeight = parseFloat(style.lineHeight);
-            if (lineHeight) {
-                el.style.lineHeight = (lineHeight * compressRatio) + 'px';
-            }
+            // Применяем сжатие через transform
+            page.style.transform = `scaleY(${compressionRatio})`;
+            page.style.transformOrigin = 'top left';
+        }
+        
+        const canvas = await html2canvas(page, {
+            scale: scale,
+            useCORS: true,
+            logging: false,
+            backgroundColor: '#0d0d14'
         });
+        
+        // Восстанавливаем стили
+        if (needsCompression) {
+            page.style.transform = '';
+            page.style.transformOrigin = '';
+        }
+        
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        const imgWidth = 210;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        
+        if (i > 0) {
+            pdf.addPage();
+        }
+        
+        pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, Math.min(imgHeight, 297));
     }
-    // ==== КОНЕЦ НОВОЙ ПРОВЕРКИ ====
     
-    // Дальше старый код не меняем
-    const canvas = await html2canvas(page, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#0d0d14'
-    });
-    
-    const imgData = canvas.toDataURL('image/jpeg', 0.95);
-    const imgWidth = 210;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    
-    if (i > 0) {
-        pdf.addPage();
-    }
-    
-    pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, Math.min(imgHeight, 297));
-    
-    // ==== ДОБАВЛЯЕМ ВОССТАНОВЛЕНИЕ ====
-    // 3. Если сжимали - восстанавливаем оригинальные стили
-    if (originalStyles) {
-        originalStyles.forEach(({element, fontSize, lineHeight}) => {
-            element.style.fontSize = fontSize;
-            element.style.lineHeight = lineHeight;
-        });
-    }
-    // ==== КОНЕЦ ВОССТАНОВЛЕНИЯ ====
-}
     // Добавляем кликабельные ссылки на последние 2 страницы (CTA)
     // Координаты в мм от верхнего левого угла страницы
     const totalPdfPages = pdf.internal.getNumberOfPages();
@@ -7940,51 +7935,24 @@ async function savePdfToIndexedDB(state) {
         unit: 'mm',
         format: 'a4'
     });
-   // ===== НОВАЯ ФУНКЦИЯ =====
-function compressPageIfNeeded(pageElement) {
-    // Проверяем высоту страницы
-    const pageHeight = pageElement.scrollHeight;
-    const maxHeight = 297 * 3.78; // Высота A4 в пикселях
     
-    // Если страница слишком высокая
-    if (pageHeight > maxHeight) {
-        // Вычисляем на сколько нужно сжать (90% от максимума)
-        const compressRatio = maxHeight / pageHeight * 0.9;
-        
-        // Находим ВСЕ текстовые элементы на странице
-        const textElements = pageElement.querySelectorAll(
-            'p, h1, h2, h3, h4, li, span, div, td, th'
-        );
-        
-        // Для каждого элемента
-        textElements.forEach(element => {
-            // Получаем текущие размеры
-            const style = window.getComputedStyle(element);
-            
-            // 1. Сжимаем размер шрифта
-            const fontSize = style.fontSize; // Например: "16px"
-            if (fontSize && fontSize !== '0px') {
-                const sizeNumber = parseFloat(fontSize); // 16
-                element.style.fontSize = (sizeNumber * compressRatio) + 'px';
-            }
-            
-            // 2. Сжимаем межстрочный интервал
-            const lineHeight = style.lineHeight; // Например: "24px"
-            if (lineHeight && lineHeight !== 'normal' && lineHeight !== '0px') {
-                const lineNumber = parseFloat(lineHeight); // 24
-                element.style.lineHeight = (lineNumber * compressRatio) + 'px';
-            }
-        });
-        
-        console.log(`[PDF] Страница сжата: ${Math.round(compressRatio * 100)}%`);
-        return true; // Сжатие применено
-    }
-    
-    return false; // Сжатие не нужно
-}
-// ===== КОНЕЦ НОВОЙ ФУНКЦИИ ===== 
     for (let i = 0; i < pages.length; i++) {
         const page = pages[i];
+        
+        // Адаптивное сжатие для длинных страниц
+        const A4_HEIGHT_PX = 297 * 3.78; // ~1122px
+        const pageHeight = page.scrollHeight;
+        let needsCompression = false;
+        
+        if (pageHeight > A4_HEIGHT_PX) {
+            needsCompression = true;
+            // Вычисляем коэффициент сжатия
+            const compressionRatio = A4_HEIGHT_PX / pageHeight;
+            
+            // Применяем сжатие через transform
+            page.style.transform = `scaleY(${compressionRatio})`;
+            page.style.transformOrigin = 'top left';
+        }
         
         const canvas = await html2canvas(page, {
             scale: 2,
@@ -7992,6 +7960,12 @@ function compressPageIfNeeded(pageElement) {
             logging: false,
             backgroundColor: '#0d0d14'
         });
+        
+        // Восстанавливаем стили
+        if (needsCompression) {
+            page.style.transform = '';
+            page.style.transformOrigin = '';
+        }
         
         const imgData = canvas.toDataURL('image/jpeg', 0.95);
         const imgWidth = 210;
@@ -8086,119 +8060,3 @@ if (typeof module !== 'undefined' && module.exports) {
         getScenario
     };
 }
-
-// ============================================
-// ЭКСПОРТ ДЛЯ БРАУЗЕРА (ГЛОБАЛЬНЫЙ)
-// ============================================
-
-(function() {
-    // Проверяем, что мы в браузере
-    if (typeof window === 'undefined') return;
-    
-    // Список функций для экспорта
-    const functionsToExport = {
-        // Основные функции
-        generatePdfHtml,
-        generateAndDownloadPdf,
-        savePdfToIndexedDB,
-        getPdfFromIndexedDB,
-        getPersonalizedSteps,
-        prepareData,
-        getScenario,
-        
-        // ⭐ КРИТИЧЕСКИ ВАЖНЫЕ (которых нет в Node.js экспорте!) ⭐
-        countTotalPages,      // ← ЭТОЙ НЕТ в module.exports!
-        
-        // Дополнительные утилиты (если нужны)
-        BLOCK_PAGES,          // для отладки
-        BLOCK_FUNCTIONS       // для отладки
-    };
-    
-    // Экспортируем каждую функцию
-    let exportedCount = 0;
-    for (const [name, func] of Object.entries(functionsToExport)) {
-        if (func !== undefined) {
-            window[name] = func;
-            exportedCount++;
-        }
-    }
-    
-    // Отладочное сообщение
-    console.log(`✅ PDF генератор v${'2.0'}: экспортировано ${exportedCount} функций`);
-    console.log(`Доступные функции: ${Object.keys(functionsToExport).join(', ')}`);
-    
-   // ================ НЕМЕДЛЕННАЯ ПРОВЕРКА ================
-console.log('=== ТЕСТ ДОСТУПНОСТИ ФУНКЦИЙ ===');
-
-// 1. Проверка экспорта
-console.log('- countTotalPages экспортирована?', typeof window.countTotalPages === 'function' ? '✅' : '❌');
-console.log('- getPersonalizedSteps экспортирована?', typeof window.getPersonalizedSteps === 'function' ? '✅' : '❌');
-console.log('- BLOCK_PAGES экспортирован?', typeof window.BLOCK_PAGES === 'object' ? '✅' : '❌');
-
-// 2. Немедленный тест функций
-if (typeof window.countTotalPages === 'function') {
-    try {
-        const testResult = window.countTotalPages([{pdfBlocks: ['plan-30-days']}]);
-        console.log(`🎯 ТЕСТ: plan-30-days = ${testResult} страниц`);
-        
-        // Проверяем логику
-        if (testResult >= 3) {
-            console.log('✅ countTotalPages работает правильно!');
-        } else {
-            console.warn('⚠️ countTotalPages возвращает мало страниц:', testResult);
-        }
-    } catch(e) {
-        console.error('❌ Ошибка в countTotalPages:', e.message);
-        console.error(e.stack);
-    }
-} else {
-    console.error('❌ countTotalPages НЕ экспортирована в window!');
-}
-
-// 3. Показываем всё, что экспортировали
-console.log('=== ВСЕ ЭКСПОРТИРОВАННЫЕ ФУНКЦИИ ===');
-Object.keys(window).forEach(key => {
-    if (key.includes('count') || key.includes('Steps') || 
-        key.includes('pdf') || key.includes('PDF') || 
-        key.includes('Block') || key.includes('BLOCK')) {
-        console.log(`${key}:`, typeof window[key]);
-    }
-    // ================ ПРИНУДИТЕЛЬНЫЙ ЭКСПОРТ ================
-    // Гарантируем, что ключевые функции будут в window
-    
-    // Если функция существует в текущей области видимости
-    try {
-        // countTotalPages
-        if (typeof countTotalPages === 'function' && !window.countTotalPages) {
-            window.countTotalPages = countTotalPages;
-            console.log('🔧 Принудительно экспортирована: countTotalPages');
-        }
-    } catch(e) {}
-    
-    try {
-        // getPersonalizedSteps
-        if (typeof getPersonalizedSteps === 'function' && !window.getPersonalizedSteps) {
-            window.getPersonalizedSteps = getPersonalizedSteps;
-            console.log('🔧 Принудительно экспортирована: getPersonalizedSteps');
-        }
-    } catch(e) {}
-    
-    try {
-        // BLOCK_PAGES
-        if (typeof BLOCK_PAGES === 'object' && !window.BLOCK_PAGES) {
-            window.BLOCK_PAGES = BLOCK_PAGES;
-            console.log('🔧 Принудительно экспортирован: BLOCK_PAGES');
-        }
-    } catch(e) {}
-    
-    // ================ ФИНАЛЬНАЯ ПРОВЕРКА ================
-    console.log('=== ФИНАЛЬНАЯ ПРОВЕРКА ===');
-    console.log('window.countTotalPages:', typeof window.countTotalPages);
-    console.log('window.getPersonalizedSteps:', typeof window.getPersonalizedSteps);
-    console.log('window.BLOCK_PAGES:', typeof window.BLOCK_PAGES);
-    
-    // Глобальная переменная для проверки
-    window.PDF_GENERATOR_LOADED = true;
-    window.PDF_GENERATOR_VERSION = '2.0';
-})();    
-});
