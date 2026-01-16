@@ -7892,7 +7892,49 @@ async function savePdfToIndexedDB(state) {
         unit: 'mm',
         format: 'a4'
     });
+   // ===== НОВАЯ ФУНКЦИЯ =====
+function compressPageIfNeeded(pageElement) {
+    // Проверяем высоту страницы
+    const pageHeight = pageElement.scrollHeight;
+    const maxHeight = 297 * 3.78; // Высота A4 в пикселях
     
+    // Если страница слишком высокая
+    if (pageHeight > maxHeight) {
+        // Вычисляем на сколько нужно сжать (90% от максимума)
+        const compressRatio = maxHeight / pageHeight * 0.9;
+        
+        // Находим ВСЕ текстовые элементы на странице
+        const textElements = pageElement.querySelectorAll(
+            'p, h1, h2, h3, h4, li, span, div, td, th'
+        );
+        
+        // Для каждого элемента
+        textElements.forEach(element => {
+            // Получаем текущие размеры
+            const style = window.getComputedStyle(element);
+            
+            // 1. Сжимаем размер шрифта
+            const fontSize = style.fontSize; // Например: "16px"
+            if (fontSize && fontSize !== '0px') {
+                const sizeNumber = parseFloat(fontSize); // 16
+                element.style.fontSize = (sizeNumber * compressRatio) + 'px';
+            }
+            
+            // 2. Сжимаем межстрочный интервал
+            const lineHeight = style.lineHeight; // Например: "24px"
+            if (lineHeight && lineHeight !== 'normal' && lineHeight !== '0px') {
+                const lineNumber = parseFloat(lineHeight); // 24
+                element.style.lineHeight = (lineNumber * compressRatio) + 'px';
+            }
+        });
+        
+        console.log(`[PDF] Страница сжата: ${Math.round(compressRatio * 100)}%`);
+        return true; // Сжатие применено
+    }
+    
+    return false; // Сжатие не нужно
+}
+// ===== КОНЕЦ НОВОЙ ФУНКЦИИ ===== 
     for (let i = 0; i < pages.length; i++) {
         const page = pages[i];
         
