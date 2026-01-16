@@ -1452,20 +1452,28 @@ function stepIntroPage(step, stepIndex, data, pageNum, totalPages) {
 }
 
 function finalPage(data, pageNum, totalPages) {
-    const content = `
+    
+    // СТРАНИЦА 1: Заголовок + Курс "7 дней"
+    const page1 = `
+    <div class="page">
+        <div class="page-header">
+            <span class="logo">Навигатор роста</span>
+            <span class="page-num">${pageNum} / ${totalPages}</span>
+        </div>
+        
         <h2 style="text-align: center; border: none;">Что дальше?</h2>
         
-        <p class="lead" style="text-align: center; max-width: 520px; margin: 0 auto 24px; font-size: 16px;">
+        <p class="lead" style="text-align: center; max-width: 520px; margin: 0 auto 20px; font-size: 16px;">
             Вы получили план — это 20% успеха. Остальные 80% — в реализации.
         </p>
         
-        <p style="text-align: center; color: #888; font-size: 14px; margin-bottom: 28px;">
+        <p style="text-align: center; color: #888; font-size: 14px; margin-bottom: 24px;">
             Если хотите внедрить быстрее и без ошибок, есть два пути:
         </p>
         
         <!-- Курс 7 дней -->
         <div class="cta-card">
-            <div class="cta-tag">????</div>
+            <div class="cta-tag">📚</div>
             <div class="cta-title">Курс «7 дней — 7 шагов к доходу на массаже»</div>
             <p class="cta-subtitle">Для тех, кто готов внедрять самостоятельно, но хочет пошаговую систему.</p>
             
@@ -1489,13 +1497,24 @@ function finalPage(data, pageNum, totalPages) {
                     <span class="cta-price-old">12 000 ₽</span>
                     <span class="cta-price">от 6 500 ₽</span>
                 </div>
-                <a href="https://lp.massagestart.ru" class="cta-link-btn">lp.massagestart.ru</a>
+                <a href="https://lp.massagestart.ru" class="cta-link-btn">lp.massagestart.ru →</a>
             </div>
         </div>
         
+        <div class="page-footer">massagestart.ru</div>
+    </div>`;
+    
+    // СТРАНИЦА 2: Персональный навигатор + блок помощи
+    const page2 = `
+    <div class="page">
+        <div class="page-header">
+            <span class="logo">Навигатор роста</span>
+            <span class="page-num">${pageNum + 1} / ${totalPages}</span>
+        </div>
+        
         <!-- Персональный навигатор -->
-        <div class="cta-card" style="border-color: #7ec8a3;">
-            <div class="cta-tag">????</div>
+        <div class="cta-card" style="border-color: #7ec8a3; margin-top: 10px;">
+            <div class="cta-tag">🎯</div>
             <div class="cta-title" style="color: #7ec8a3;">Персональный навигатор роста</div>
             <p class="cta-subtitle">Для тех, кто хочет быстрый результат с поддержкой эксперта.</p>
             
@@ -1531,9 +1550,11 @@ function finalPage(data, pageNum, totalPages) {
                 Напишите на <span class="cta-help-email">7days@massagestart.ru</span> — ответим, какой вариант лучше подойдёт именно для вашей ситуации.
             </p>
         </div>
-    `;
+        
+        <div class="page-footer">massagestart.ru</div>
+    </div>`;
     
-    return pageWrapper(pageNum, totalPages, content);
+    return page1 + page2;
 }
 /**
  * ═══════════════════════════════════════════════════════════════════════════
@@ -2445,6 +2466,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
 function block_retention_7_techniques(data, pageNum, totalPages) {
     
+    // СТРАНИЦА 1: Приёмы 1-4
     const page1 = `
     <div class="page">
         <div class="page-header">
@@ -2503,6 +2525,19 @@ function block_retention_7_techniques(data, pageNum, totalPages) {
             </div>
         </div>
         
+        <div class="page-footer">massagestart.ru</div>
+    </div>`;
+    
+    // СТРАНИЦА 2: Приёмы 5-7 + итог
+    const page2 = `
+    <div class="page">
+        <div class="page-header">
+            <span class="logo">Навигатор роста</span>
+            <span class="page-num">${pageNum + 1} / ${totalPages}</span>
+        </div>
+        
+        <h3>7 приёмов удержания (продолжение)</h3>
+        
         <div class="step-card">
             <div class="step-header">
                 <div class="step-num">5</div>
@@ -2536,15 +2571,21 @@ function block_retention_7_techniques(data, pageNum, totalPages) {
             </div>
         </div>
         
+        <div class="result-box">
+            <div class="result-label">Ожидаемый результат</div>
+            <div class="result-value">Возвращаемость +15-25%</div>
+        </div>
+        
         <div class="tip-box">
-            <strong>Результат:</strong> при использовании этих приёмов возвращаемость 
-            вырастает на 15-25%. Клиенты чувствуют заботу и идут именно к вам.
+            <strong>Главный секрет:</strong> клиенты возвращаются не к массажисту, 
+            а к человеку, который их помнит, понимает и заботится. 
+            Техника важна, но отношение — важнее.
         </div>
         
         <div class="page-footer">massagestart.ru</div>
     </div>`;
     
-    return page1;
+    return page1 + page2;
 }
 
 // Экспорт
@@ -4311,6 +4352,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
 function block_loyal_clients_7_techniques(data, pageNum, totalPages) {
     
+    // СТРАНИЦА 1: Приёмы 1-4
     const page1 = `
     <div class="page">
         <div class="page-header">
@@ -4370,6 +4412,19 @@ function block_loyal_clients_7_techniques(data, pageNum, totalPages) {
             </div>
         </div>
         
+        <div class="page-footer">massagestart.ru</div>
+    </div>`;
+    
+    // СТРАНИЦА 2: Приёмы 5-7 + итог
+    const page2 = `
+    <div class="page">
+        <div class="page-header">
+            <span class="logo">Навигатор роста</span>
+            <span class="page-num">${pageNum + 1} / ${totalPages}</span>
+        </div>
+        
+        <h3>7 приёмов для «своих» клиентов (продолжение)</h3>
+        
         <div class="step-card">
             <div class="step-header">
                 <div class="step-num">5</div>
@@ -4403,15 +4458,21 @@ function block_loyal_clients_7_techniques(data, pageNum, totalPages) {
             </div>
         </div>
         
+        <div class="result-box">
+            <div class="result-label">Ожидаемый результат через 2-3 месяца</div>
+            <div class="result-value">30-40% клиентов просят именно вас</div>
+        </div>
+        
         <div class="tip-box">
-            <strong>Цель:</strong> через 2-3 месяца 30-40% ваших клиентов должны просить 
-            записать именно к вам. Это ваш главный актив в салоне.
+            <strong>Это ваш главный актив:</strong> «свои» клиенты — это стабильность. 
+            Они не уйдут к другому мастеру, они рекомендуют вас друзьям, 
+            и они — основа для перехода на частную практику, если решите.
         </div>
         
         <div class="page-footer">massagestart.ru</div>
     </div>`;
     
-    return page1;
+    return page1 + page2;
 }
 
 // Экспорт
@@ -7613,7 +7674,7 @@ const BLOCK_PAGES = {
     'channel-social': 2,
     'retention-system': 2,
     'retention-templates': 2,
-    'retention-7-techniques': 1,
+    'retention-7-techniques': 2,
     'retention-automation': 1,
     'retention-advanced': 1,
     'retention-loyalty': 1,
@@ -7631,7 +7692,7 @@ const BLOCK_PAGES = {
     'raise-price-faq': 1,
     'raise-price-premium': 1,
     'raise-price-positioning': 1,
-    'loyal-clients-7-techniques': 1,
+    'loyal-clients-7-techniques': 2,
     'loyal-clients-templates': 1,
     'track-loyal-clients': 1,
     'client-base-template': 1,
@@ -7676,7 +7737,7 @@ function countTotalPages(steps) {
         }
     }
     
-    total += 1; // Финальная
+    total += 2; // Финальная (теперь 2 страницы: Курс + Навигатор)
     
     return total;
 }
@@ -7786,22 +7847,18 @@ async function generateAndDownloadPdf(state, filename) {
         pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, Math.min(imgHeight, 297));
     }
     
-    // Добавляем кликабельные ссылки на последнюю страницу (CTA)
+    // Добавляем кликабельные ссылки на последние 2 страницы (CTA)
     // Координаты в мм от верхнего левого угла страницы
     const totalPdfPages = pdf.internal.getNumberOfPages();
+    
+    // Предпоследняя страница: Курс "7 дней"
+    pdf.setPage(totalPdfPages - 1);
+    pdf.link(15, 80, 180, 160, { url: 'https://lp.massagestart.ru' });
+    
+    // Последняя страница: Персональный навигатор + Email
     pdf.setPage(totalPdfPages);
-    
-    // Блок 1: Курс "7 дней" - вся карточка кликабельна
-    // Карточка примерно: x:15-195mm, y:60-140mm
-    pdf.link(15, 55, 180, 85, { url: 'https://lp.massagestart.ru' });
-    
-    // Блок 2: Персональный навигатор - вся карточка кликабельна
-    // Карточка примерно: x:15-195mm, y:145-230mm
-    pdf.link(15, 145, 180, 85, { url: 'https://forms.gle/sq3ns2Co5CNjoP6h6' });
-    
-    // Блок 3: Email для вопросов
-    // Блок примерно: x:15-195mm, y:235-270mm
-    pdf.link(15, 235, 180, 35, { url: 'mailto:7days@massagestart.ru' });
+    pdf.link(15, 40, 180, 170, { url: 'https://forms.gle/sq3ns2Co5CNjoP6h6' });
+    pdf.link(15, 215, 180, 40, { url: 'mailto:7days@massagestart.ru' });
     
     // Удаляем контейнер
     document.body.removeChild(container);
@@ -7854,19 +7911,18 @@ async function savePdfToIndexedDB(state) {
         pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, Math.min(imgHeight, 297));
     }
     
-    // Кликабельные ссылки на CTA
+    // Кликабельные ссылки на последние 2 страницы (CTA)
     // Координаты в мм от верхнего левого угла страницы
     const totalPdfPages = pdf.internal.getNumberOfPages();
+    
+    // Предпоследняя страница: Курс "7 дней"
+    pdf.setPage(totalPdfPages - 1);
+    pdf.link(15, 80, 180, 160, { url: 'https://lp.massagestart.ru' });
+    
+    // Последняя страница: Персональный навигатор + Email
     pdf.setPage(totalPdfPages);
-    
-    // Блок 1: Курс "7 дней" - вся карточка кликабельна
-    pdf.link(15, 55, 180, 85, { url: 'https://lp.massagestart.ru' });
-    
-    // Блок 2: Персональный навигатор - вся карточка кликабельна
-    pdf.link(15, 145, 180, 85, { url: 'https://forms.gle/sq3ns2Co5CNjoP6h6' });
-    
-    // Блок 3: Email для вопросов
-    pdf.link(15, 235, 180, 35, { url: 'mailto:7days@massagestart.ru' });
+    pdf.link(15, 40, 180, 170, { url: 'https://forms.gle/sq3ns2Co5CNjoP6h6' });
+    pdf.link(15, 215, 180, 40, { url: 'mailto:7days@massagestart.ru' });
     
     document.body.removeChild(container);
     
