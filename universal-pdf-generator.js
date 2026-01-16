@@ -8127,20 +8127,78 @@ if (typeof module !== 'undefined' && module.exports) {
     console.log(`✅ PDF генератор v${'2.0'}: экспортировано ${exportedCount} функций`);
     console.log(`Доступные функции: ${Object.keys(functionsToExport).join(', ')}`);
     
-    // Быстрый тест экспорта
-    setTimeout(() => {
-        console.log('Тест доступности:');
-        console.log('- countTotalPages:', typeof countTotalPages === 'function' ? '✅' : '❌');
-        console.log('- getPersonalizedSteps:', typeof getPersonalizedSteps === 'function' ? '✅' : '❌');
+   // ================ НЕМЕДЛЕННАЯ ПРОВЕРКА ================
+console.log('=== ТЕСТ ДОСТУПНОСТИ ФУНКЦИЙ ===');
+
+// 1. Проверка экспорта
+console.log('- countTotalPages экспортирована?', typeof window.countTotalPages === 'function' ? '✅' : '❌');
+console.log('- getPersonalizedSteps экспортирована?', typeof window.getPersonalizedSteps === 'function' ? '✅' : '❌');
+console.log('- BLOCK_PAGES экспортирован?', typeof window.BLOCK_PAGES === 'object' ? '✅' : '❌');
+
+// 2. Немедленный тест функций
+if (typeof window.countTotalPages === 'function') {
+    try {
+        const testResult = window.countTotalPages([{pdfBlocks: ['plan-30-days']}]);
+        console.log(`🎯 ТЕСТ: plan-30-days = ${testResult} страниц`);
         
-        // Авто-тест
-        if (typeof countTotalPages === 'function') {
-            try {
-                const test = countTotalPages([{pdfBlocks: ['plan-30-days']}]);
-                console.log(`Тест: plan-30-days = ${test} страниц`, test >= 3 ? '✅' : '❌');
-            } catch(e) {
-                console.error('Ошибка теста:', e.message);
-            }
+        // Проверяем логику
+        if (testResult >= 3) {
+            console.log('✅ countTotalPages работает правильно!');
+        } else {
+            console.warn('⚠️ countTotalPages возвращает мало страниц:', testResult);
         }
-    }, 100);
-})();
+    } catch(e) {
+        console.error('❌ Ошибка в countTotalPages:', e.message);
+        console.error(e.stack);
+    }
+} else {
+    console.error('❌ countTotalPages НЕ экспортирована в window!');
+}
+
+// 3. Показываем всё, что экспортировали
+console.log('=== ВСЕ ЭКСПОРТИРОВАННЫЕ ФУНКЦИИ ===');
+Object.keys(window).forEach(key => {
+    if (key.includes('count') || key.includes('Steps') || 
+        key.includes('pdf') || key.includes('PDF') || 
+        key.includes('Block') || key.includes('BLOCK')) {
+        console.log(`${key}:`, typeof window[key]);
+    }
+    // ================ ПРИНУДИТЕЛЬНЫЙ ЭКСПОРТ ================
+    // Гарантируем, что ключевые функции будут в window
+    
+    // Если функция существует в текущей области видимости
+    try {
+        // countTotalPages
+        if (typeof countTotalPages === 'function' && !window.countTotalPages) {
+            window.countTotalPages = countTotalPages;
+            console.log('🔧 Принудительно экспортирована: countTotalPages');
+        }
+    } catch(e) {}
+    
+    try {
+        // getPersonalizedSteps
+        if (typeof getPersonalizedSteps === 'function' && !window.getPersonalizedSteps) {
+            window.getPersonalizedSteps = getPersonalizedSteps;
+            console.log('🔧 Принудительно экспортирована: getPersonalizedSteps');
+        }
+    } catch(e) {}
+    
+    try {
+        // BLOCK_PAGES
+        if (typeof BLOCK_PAGES === 'object' && !window.BLOCK_PAGES) {
+            window.BLOCK_PAGES = BLOCK_PAGES;
+            console.log('🔧 Принудительно экспортирован: BLOCK_PAGES');
+        }
+    } catch(e) {}
+    
+    // ================ ФИНАЛЬНАЯ ПРОВЕРКА ================
+    console.log('=== ФИНАЛЬНАЯ ПРОВЕРКА ===');
+    console.log('window.countTotalPages:', typeof window.countTotalPages);
+    console.log('window.getPersonalizedSteps:', typeof window.getPersonalizedSteps);
+    console.log('window.BLOCK_PAGES:', typeof window.BLOCK_PAGES);
+    
+    // Глобальная переменная для проверки
+    window.PDF_GENERATOR_LOADED = true;
+    window.PDF_GENERATOR_VERSION = '2.0';
+})();    
+});
