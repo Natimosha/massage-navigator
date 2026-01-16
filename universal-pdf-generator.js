@@ -7827,26 +7827,74 @@ async function generateAndDownloadPdf(state, filename) {
     });
     
     for (let i = 0; i < pages.length; i++) {
-        const page = pages[i];
+    const page = pages[i];
+    
+    // ==== ДОБАВЛЯЕМ ЭТУ ПРОВЕРКУ ====
+    // 1. Проверяем, нужно ли сжимать страницу
+    const pageHeight = page.scrollHeight;
+    const maxHeight = 297 * 3.78;
+    
+    let originalStyles = null;
+    
+    if (pageHeight > maxHeight) {
+        // 2. Если нужно - сжимаем
+        const compressRatio = maxHeight / pageHeight * 0.9;
         
-        const canvas = await html2canvas(page, {
-            scale: 2,
-            useCORS: true,
-            logging: false,
-            backgroundColor: '#0d0d14'
+        // Сохраняем оригинальные стили, чтобы потом восстановить
+        originalStyles = [];
+        const textElements = page.querySelectorAll('p, h1, h2, h3, h4, li, span, div');
+        
+        textElements.forEach(el => {
+            const style = window.getComputedStyle(el);
+            originalStyles.push({
+                element: el,
+                fontSize: el.style.fontSize || style.fontSize,
+                lineHeight: el.style.lineHeight || style.lineHeight
+            });
+            
+            // Сжимаем шрифт
+            const fontSize = parseFloat(style.fontSize);
+            if (fontSize) {
+                el.style.fontSize = (fontSize * compressRatio) + 'px';
+            }
+            
+            // Сжимаем межстрочный интервал
+            const lineHeight = parseFloat(style.lineHeight);
+            if (lineHeight) {
+                el.style.lineHeight = (lineHeight * compressRatio) + 'px';
+            }
         });
-        
-        const imgData = canvas.toDataURL('image/jpeg', 0.95);
-        const imgWidth = 210;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        
-        if (i > 0) {
-            pdf.addPage();
-        }
-        
-        pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, Math.min(imgHeight, 297));
+    }
+    // ==== КОНЕЦ НОВОЙ ПРОВЕРКИ ====
+    
+    // Дальше старый код не меняем
+    const canvas = await html2canvas(page, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#0d0d14'
+    });
+    
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    const imgWidth = 210;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    
+    if (i > 0) {
+        pdf.addPage();
     }
     
+    pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, Math.min(imgHeight, 297));
+    
+    // ==== ДОБАВЛЯЕМ ВОССТАНОВЛЕНИЕ ====
+    // 3. Если сжимали - восстанавливаем оригинальные стили
+    if (originalStyles) {
+        originalStyles.forEach(({element, fontSize, lineHeight}) => {
+            element.style.fontSize = fontSize;
+            element.style.lineHeight = lineHeight;
+        });
+    }
+    // ==== КОНЕЦ ВОССТАНОВЛЕНИЯ ====
+}
     // Добавляем кликабельные ссылки на последние 2 страницы (CTA)
     // Координаты в мм от верхнего левого угла страницы
     const totalPdfPages = pdf.internal.getNumberOfPages();
